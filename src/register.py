@@ -1,4 +1,7 @@
 import os
+import validators
+from pathlib import Path
+from typing import Optional, Union
 
 import webbrowser
 from webdriver_manager.chrome import *
@@ -12,9 +15,11 @@ from utils.utils import get_logger
 
 logger = get_logger(__name__)
 
-class CrawlerInit():
-    def __init__(self):
-        self.browser_type = ['chrome', 'firefox']
+class Register(object):
+    def __init__(self,
+                 browser_type=['chrome', 'firefox']
+    ):
+        self.browser_type = browser_type
         global driver
         driver = self.get_driver()
 
@@ -34,7 +39,10 @@ class CrawlerInit():
         return driver
 
     def access_website(self, url):
-        driver.get(url)
+        if validators.url(url):
+            driver.get(url)
+        else:
+            raise TypeError('URL is not valid')
 
     @staticmethod
     def check_browser_exist(browser):
@@ -53,9 +61,11 @@ class CrawlerInit():
         return True
 
 if __name__ == '__main__':
-    url = 'https://vnexpress.net/'
-    crawl = CrawlerInit()
-    crawl.access_website(url)
+    url = 'https://www.ivivu.com/blog/2013/10/du-lich-ha-noi-cam-nang-tu-a-den-z/'
+    ivivu = Ivivu()
+    ivivu.retrieve_data(url)
+
+
 
 
 

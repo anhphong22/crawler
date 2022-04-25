@@ -6,25 +6,50 @@ import sys
 import pandas as pd
 import requests
 
-from utils.utils import get_logger, load_json
-
+from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException as EC
 
+from register import Register
+
+from utils.utils import get_logger, load_json
 logger = get_logger(__name__)
 
-"""
-    This class is to access the website and pass login information
-"""
 
-class Authentication(object):
-    def __init__(self, config):
-        self.config = config
-        cr = CrawlerInit()
+class Ivivu(Register):
+    def __init__(self,
+                 browser_type=['chrome', 'firefox']
+    ):
+        super().__init__(browser_type)
         global driver
-        driver = cr.get_driver()
-        driver.get(self.url)
+        driver = self.get_driver()
 
-    def login(self):
-        pass
+    def collect_link_data(self, url):
+        self.access_website(url)
+        destinations = driver.find_elements(by = By.ID, value = 'idpostion_20')
+        destinations = destinations[:8]
+        destination_link = []
+        for des in destinations:
+            href = driver.find_element_by_xpath('//a[@title="{des.text}"]'.format(des=des)).get_attribute('href')
+            destination_link.append(href)
+
+        driver.close()
+        return destination_link
+
+    def retrieve_data(self, url):
+        data_link = self.collect_link_data(url)
+        for link in data_link:
+            self.access_website(link)
+            place = driver.find_element_by_class_name('ltt-contentbox white')
+            driver.close()
+
+
+if __name__ == "__main__":
+    url = 'https://www.ivivu.com/blog/2013/10/du-lich-ha-noi-cam-nang-tu-a-den-z/'
+    ivivu = Ivivu()
+    ivivu.retrieve_data(url)
+
+
+
+
 
