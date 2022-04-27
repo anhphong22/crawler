@@ -5,6 +5,7 @@ import sys
 
 import pandas as pd
 import requests
+import validators
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -30,7 +31,7 @@ class Ivivu(Register):
         destinations = destinations[:8]
         destination_link = []
         for des in destinations:
-            href = driver.find_element_by_xpath('//a[@title="{des.text}"]'.format(des=des)).get_attribute('href')
+            href = driver.find_element(by = By.XPATH, value = '//a[@title="{des.text}"]'.format(des=des)).get_attribute('href')
             destination_link.append(href)
 
         driver.close()
@@ -40,14 +41,15 @@ class Ivivu(Register):
         data_link = self.collect_link_data(url)
         for link in data_link:
             self.access_website(link)
-            place = driver.find_element_by_class_name('ltt-contentbox white')
-            driver.close()
+            entity_title = driver.find_element(by = By.CLASS_NAME, value = 'entry-title').text
+
+
 
 
 if __name__ == "__main__":
     url = 'https://www.ivivu.com/blog/2013/10/du-lich-ha-noi-cam-nang-tu-a-den-z/'
     ivivu = Ivivu()
-    ivivu.retrieve_data(url)
+    print(ivivu.collect_link_data(url))
 
 
 

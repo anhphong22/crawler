@@ -10,6 +10,18 @@ from webdriver_manager.firefox import *
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException as EC
+from selenium.webdriver.chrome.options import Options
+
+option = Options()
+
+option.add_argument("--disable-infobars")
+option.add_argument("start-maximized")
+option.add_argument("--disable-extensions")
+
+# Pass the argument 1 to allow and 2 to block
+option.add_experimental_option("prefs", {
+    "profile.default_content_setting_values.notifications": 2
+})
 
 from utils.utils import get_logger
 
@@ -20,29 +32,21 @@ class Register(object):
                  browser_type=['chrome', 'firefox']
     ):
         self.browser_type = browser_type
-        global driver
-        driver = self.get_driver()
 
     def get_driver(self):
+        global driver
         try:
             for browser in self.browser_type:
                 if browser == 'chrome':
-                    driver = webdriver.Chrome(ChromeDriverManager().install())
+                    driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options = option)
                     break
                 elif browser == 'firefox':
                     driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
                     break
-                logger('Browser type: {}'.format(browser))
         except:
             raise TypeError('Browser type is not supported')
 
         return driver
-
-    def access_website(self, url):
-        if validators.url(url):
-            driver.get(url)
-        else:
-            raise TypeError('URL is not valid')
 
     @staticmethod
     def check_browser_exist(browser):
@@ -60,10 +64,20 @@ class Register(object):
             return False
         return True
 
-if __name__ == '__main__':
-    url = 'https://www.ivivu.com/blog/2013/10/du-lich-ha-noi-cam-nang-tu-a-den-z/'
-    ivivu = Ivivu()
-    ivivu.retrieve_data(url)
+    @staticmethod
+    def login_facebook(username, password):
+        driver.find_element(by = By.NAME, value = 'email').send_keys(username)
+        driver.find_element(by = By.NAME, value = 'pass').send_keys(password)
+        driver.find_element(by = By.NAME, value = 'login').click()
+
+    @staticmethod
+    def access_website(url):
+        if validators.url(url):
+            driver.get(url)
+            logger.info('Accessing website: {}'.format(url))
+        else:
+            logger.error('Invalid url: {}'.format(url))
+
 
 
 
